@@ -10,17 +10,28 @@ const books = parsed.data;
 console.log("Total books to insert:", books.length);
 
 // Connect to your database
+require('dotenv').config();
+
 const client = new Client({
-  user: 'postgres',
-  password: 'alexandria123', // the password you set during install
-  host: 'localhost',
-  port: 5432,
-  database: 'alexandria',
+  connectionString: process.env.DATABASE_URL,
 });
 
 async function loadBooks() {
   await client.connect();
   console.log("Connected to database.");
+
+  await client.query(`
+  CREATE TABLE IF NOT EXISTS books (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    authors TEXT,
+    description TEXT,
+    publisher TEXT,
+    published_date TEXT,
+    categories TEXT
+  )
+`);
+console.log("Table ready.");
 
   let inserted = 0;
 
