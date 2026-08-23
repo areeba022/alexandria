@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Alexandria - Book Search</title>
+</head>
+<body>
+  <h1>Alexandria</h1>
+  <input type="text" id="searchBox" placeholder="Search for a book, author, or topic...">
+  <button onclick="doSearch()">Search</button>
+
+  <div id="results"></div>
+
+  <script>
+    async function doSearch() {
+      const query = document.getElementById('searchBox').value;
+      const response = await fetch('/search?q=' + query);
+      const books = await response.json();
+
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = ''; // clear old results
+
+      for (let i = 0; i < books.length; i++) {
+        const book = books[i];
+        resultsDiv.innerHTML += `<p><strong>${book.title}</strong> by ${book.authors}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
