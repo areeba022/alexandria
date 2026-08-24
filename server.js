@@ -16,6 +16,25 @@ client.connect().then(() => {
     console.log("Connected to database.");
 });
 
+app.get('/suggest', async (req, res) => {
+    const query = req.query.q || '';
+    if (query.length < 2) {
+        return res.json([]);
+    }
+    const searchTerm = `%${query}%`;
+
+    const result = await client.query(
+        `SELECT DISTINCT title
+     FROM books
+     WHERE title ILIKE $1
+     ORDER BY title
+     LIMIT 6`,
+        [searchTerm]
+    );
+
+    res.json(result.rows.map(row => row.title));
+});
+
 app.get('/search', async (req, res) => {
     const query = req.query.q || '';
     const searchTerm = `%${query}%`;

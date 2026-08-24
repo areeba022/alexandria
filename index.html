@@ -9,9 +9,97 @@
   <p class="tagline">Find your next great read</p>
 
   <div class="search-bar">
-    <input type="text" id="searchBox" placeholder="Search for a book, author, or topic...">
-    <button onclick="doSearch()">Search</button>
+  <div class="search-input-wrapper">
+    <input type="text" id="searchBox" placeholder="Search for a book, author, or topic..." autocomplete="off">
+    <div id="suggestions" class="suggestions-dropdown"></div>
   </div>
+  <button onclick="doSearch()">Search</button>
+</div>
+
+<div id="results"></div>
+
+<script>
+  function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function highlightMatch(text, query) {
+    if (!query) return text;
+    const safeQuery = escapeRegex(query);
+    const regex = new RegExp(`(${safeQuery})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+  }
+
+  let debounceTimer;
+  const searchBox = document.getElementById('searchBox');
+  const suggestionsDiv = document.getElementById('suggestions');
+
+  searchBox.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const query = searchBox.value;
+
+    if (query.length < 2) {
+      suggestionsDiv.innerHTML = '';
+      suggestionsDiv.style.display = 'none';
+      return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+      const response = await fetch('/suggest?q=' + encodeURIComponent(query));
+      const suggestions = await response.json();
+      renderSuggestions(suggestions, query);
+    }, 200);
+  });
+
+  function renderSuggestions(suggestions, query) {
+    if (suggestions.length === 0) {
+      suggestionsDiv.innerHTML = '';
+      suggestionsDiv.style.display = 'none';
+      return;
+    }
+
+    suggestionsDiv.innerHTML = suggestions
+      .map(title => `<div class="suggestion-item">${highlightMatch(title, query)}</div>`)
+      .join('');
+    suggestionsDiv.style.display = 'block';
+
+    document.querySelectorAll('.suggestion-item').forEach((item, i) => {
+      item.addEventListener('click', () => {
+        searchBox.value = suggestions[i];
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.style.display = 'none';
+        doSearch();
+      });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-input-wrapper')) {
+      suggestionsDiv.style.display = 'none';
+    }
+  });
+
+  async function doSearch() {
+    const query = searchBox.value;
+    const response = await fetch('/search?q=' + query);
+    const books = await response.json();
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+
+    for (let i = 0; i < books.length; i++) {
+      const book = books[i];
+      const highlightedTitle = highlightMatch(book.title, query);
+      const highlightedAuthors = highlightMatch(book.authors, query);
+      resultsDiv.innerHTML += `
+        <div class="book-card">
+          <div class="book-title">${highlightedTitle}</div>
+          <div class="book-author">by ${highlightedAuthors}</div>
+        </div>
+      `;
+    }
+  }
+</script>
 
   <div id="results"></div>
 
