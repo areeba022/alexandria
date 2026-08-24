@@ -36,6 +36,7 @@ app.get('/search', async (req, res) => {
     res.json(result.rows);
 });
 
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
