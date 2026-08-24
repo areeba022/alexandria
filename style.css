@@ -1,0 +1,106 @@
+:root {
+  --bg-color: #faf6f0;
+  --text-color: #2b2118;
+  --accent-color: #7a4b2f;
+  --card-bg: #fffaf3;
+  --border-color: #e0d3bf;
+  --highlight-bg: #f0c96b;
+  --highlight-text: #2b2118;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Georgia', 'Palatino Linotype', serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+
+.tagline {
+  text-align: center;
+  font-style: italic;
+  color: var(--accent-color);
+  margin-bottom: 32px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+#searchBox {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-family: inherit;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+#searchBox:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--accent-color);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+#results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.book-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.book-title {
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.book-author {
+  color: var(--accent-color);
+  font-style: italic;
+}
+
+mark {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text);
+  padding: 0 2px;
+  border-radius: 2px;
+}
