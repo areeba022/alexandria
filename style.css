@@ -45,6 +45,7 @@ h1 {
 
 #searchBox {
   flex: 1;
+   width: 100%;
   padding: 12px 16px;
   font-size: 1rem;
   font-family: inherit;
