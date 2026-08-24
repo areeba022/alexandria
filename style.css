@@ -140,3 +140,22 @@ mark {
 .suggestion-item:hover {
   background-color: var(--bg-color);
 }
+
+.suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.clear-history {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.clear-history:hover {
+  opacity: 0.7;
+}

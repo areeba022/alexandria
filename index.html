@@ -9,97 +9,12 @@
   <p class="tagline">Find your next great read</p>
 
   <div class="search-bar">
-  <div class="search-input-wrapper">
-    <input type="text" id="searchBox" placeholder="Search for a book, author, or topic..." autocomplete="off">
-    <div id="suggestions" class="suggestions-dropdown"></div>
+    <div class="search-input-wrapper">
+      <input type="text" id="searchBox" placeholder="Search for a book, author, or topic..." autocomplete="off">
+      <div id="suggestions" class="suggestions-dropdown"></div>
+    </div>
+    <button onclick="doSearch()">Search</button>
   </div>
-  <button onclick="doSearch()">Search</button>
-</div>
-
-<div id="results"></div>
-
-<script>
-  function escapeRegex(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  }
-
-  function highlightMatch(text, query) {
-    if (!query) return text;
-    const safeQuery = escapeRegex(query);
-    const regex = new RegExp(`(${safeQuery})`, 'gi');
-    return text.replace(regex, '<mark>$1</mark>');
-  }
-
-  let debounceTimer;
-  const searchBox = document.getElementById('searchBox');
-  const suggestionsDiv = document.getElementById('suggestions');
-
-  searchBox.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    const query = searchBox.value;
-
-    if (query.length < 2) {
-      suggestionsDiv.innerHTML = '';
-      suggestionsDiv.style.display = 'none';
-      return;
-    }
-
-    debounceTimer = setTimeout(async () => {
-      const response = await fetch('/suggest?q=' + encodeURIComponent(query));
-      const suggestions = await response.json();
-      renderSuggestions(suggestions, query);
-    }, 200);
-  });
-
-  function renderSuggestions(suggestions, query) {
-    if (suggestions.length === 0) {
-      suggestionsDiv.innerHTML = '';
-      suggestionsDiv.style.display = 'none';
-      return;
-    }
-
-    suggestionsDiv.innerHTML = suggestions
-      .map(title => `<div class="suggestion-item">${highlightMatch(title, query)}</div>`)
-      .join('');
-    suggestionsDiv.style.display = 'block';
-
-    document.querySelectorAll('.suggestion-item').forEach((item, i) => {
-      item.addEventListener('click', () => {
-        searchBox.value = suggestions[i];
-        suggestionsDiv.innerHTML = '';
-        suggestionsDiv.style.display = 'none';
-        doSearch();
-      });
-    });
-  }
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-input-wrapper')) {
-      suggestionsDiv.style.display = 'none';
-    }
-  });
-
-  async function doSearch() {
-    const query = searchBox.value;
-    const response = await fetch('/search?q=' + query);
-    const books = await response.json();
-
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '';
-
-    for (let i = 0; i < books.length; i++) {
-      const book = books[i];
-      const highlightedTitle = highlightMatch(book.title, query);
-      const highlightedAuthors = highlightMatch(book.authors, query);
-      resultsDiv.innerHTML += `
-        <div class="book-card">
-          <div class="book-title">${highlightedTitle}</div>
-          <div class="book-author">by ${highlightedAuthors}</div>
-        </div>
-      `;
-    }
-  }
-</script>
 
   <div id="results"></div>
 
@@ -115,8 +30,127 @@
       return text.replace(regex, '<mark>$1</mark>');
     }
 
+    // ---- Search History ----
+    const HISTORY_KEY = 'alexandria_search_history';
+    const MAX_HISTORY = 6;
+
+    function getHistory() {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveToHistory(query) {
+      if (!query.trim()) return;
+      let history = getHistory();
+      history = history.filter(item => item.toLowerCase() !== query.toLowerCase());
+      history.unshift(query);
+      history = history.slice(0, MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+
+    function clearHistory() {
+      localStorage.removeItem(HISTORY_KEY);
+      suggestionsDiv.innerHTML = '';
+      suggestionsDiv.style.display = 'none';
+    }
+
+    function renderHistory() {
+      const history = getHistory();
+      if (history.length === 0) {
+        suggestionsDiv.style.display = 'none';
+        return;
+      }
+
+      const itemsHtml = history
+        .map(q => `<div class="suggestion-item">${q}</div>`)
+        .join('');
+
+      suggestionsDiv.innerHTML = `
+        <div class="suggestions-header">
+          <span>Recent searches</span>
+          <span class="clear-history" onclick="clearHistory()">Clear</span>
+        </div>
+        ${itemsHtml}
+      `;
+      suggestionsDiv.style.display = 'block';
+
+      suggestionsDiv.querySelectorAll('.suggestion-item').forEach((item, i) => {
+        item.addEventListener('click', () => {
+          searchBox.value = history[i];
+          suggestionsDiv.style.display = 'none';
+          doSearch();
+        });
+      });
+    }
+
+    // ---- Autocomplete + History wiring ----
+    let debounceTimer;
+    const searchBox = document.getElementById('searchBox');
+    const suggestionsDiv = document.getElementById('suggestions');
+
+    searchBox.addEventListener('focus', () => {
+      if (searchBox.value.length === 0) {
+        renderHistory();
+      }
+    });
+
+    searchBox.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const query = searchBox.value;
+
+      if (query.length === 0) {
+        renderHistory();
+        return;
+      }
+
+      if (query.length < 2) {
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.style.display = 'none';
+        return;
+      }
+
+      debounceTimer = setTimeout(async () => {
+        const response = await fetch('/suggest?q=' + encodeURIComponent(query));
+        const suggestions = await response.json();
+        renderSuggestions(suggestions, query);
+      }, 200);
+    });
+
+    function renderSuggestions(suggestions, query) {
+      if (suggestions.length === 0) {
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.style.display = 'none';
+        return;
+      }
+
+      suggestionsDiv.innerHTML = suggestions
+        .map(title => `<div class="suggestion-item">${highlightMatch(title, query)}</div>`)
+        .join('');
+      suggestionsDiv.style.display = 'block';
+
+      suggestionsDiv.querySelectorAll('.suggestion-item').forEach((item, i) => {
+        item.addEventListener('click', () => {
+          searchBox.value = suggestions[i];
+          suggestionsDiv.innerHTML = '';
+          suggestionsDiv.style.display = 'none';
+          doSearch();
+        });
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.search-input-wrapper')) {
+        suggestionsDiv.style.display = 'none';
+      }
+    });
+
     async function doSearch() {
-      const query = document.getElementById('searchBox').value;
+      const query = searchBox.value;
+      if (!query.trim()) return;
+
+      saveToHistory(query);
+      suggestionsDiv.style.display = 'none';
+
       const response = await fetch('/search?q=' + query);
       const books = await response.json();
 
