@@ -39,19 +39,24 @@ app.get('/search', async (req, res) => {
     const query = req.query.q || '';
     const searchTerm = `%${query}%`;
 
-    const result = await client.query(
-        `SELECT title, authors, description, published_date, categories, thumbnail,
-       (CASE WHEN title ILIKE $1 THEN 5 ELSE 0 END) +
-       (CASE WHEN authors ILIKE $1 THEN 3 ELSE 0 END) +
-       (CASE WHEN description ILIKE $1 THEN 1 ELSE 0 END) AS score
-     FROM books
-     WHERE title ILIKE $1 OR authors ILIKE $1 OR description ILIKE $1
-     ORDER BY score DESC
-     LIMIT 10`,
-        [searchTerm]
-    );
+    try {
+        const result = await client.query(
+            `SELECT title, authors, description, published_date, categories, thumbnail,
+           (CASE WHEN title ILIKE $1 THEN 5 ELSE 0 END) +
+           (CASE WHEN authors ILIKE $1 THEN 3 ELSE 0 END) +
+           (CASE WHEN description ILIKE $1 THEN 1 ELSE 0 END) AS score
+         FROM books
+         WHERE title ILIKE $1 OR authors ILIKE $1 OR description ILIKE $1
+         ORDER BY score DESC
+         LIMIT 10`,
+            [searchTerm]
+        );
 
-    res.json(result.rows);
+        res.json(result.rows);
+    } catch (err) {
+        console.error('SEARCH ERROR:', err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 8080;
