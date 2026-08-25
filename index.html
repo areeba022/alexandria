@@ -8,8 +8,15 @@
 
 <body>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
-  <h1>Alexandria</h1>
-  <p class="tagline">Find your next great read</p>
+
+  <header class="hero">
+    <div class="logo">
+      <span class="logo-icon">📚</span>
+      <span class="logo-text">Alexandria</span>
+    </div>
+    <p class="tagline">Find your next great read</p>
+    <p class="stat-line" id="statLine"></p>
+  </header>
 
   <div class="search-bar">
     <div class="search-input-wrapper">
@@ -190,6 +197,16 @@
         `;
       }
     }
+    // ---- Stats ----
+fetch('/stats')
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById('statLine').textContent =
+      `Search across ${data.totalBooks.toLocaleString()} books`;
+  })
+  .catch(() => {
+    document.getElementById('statLine').textContent = '';
+  });
     // ---- Dark Mode ----
     const THEME_KEY = 'alexandria_theme';
     const themeToggleBtn = document.getElementById('themeToggle');
@@ -216,6 +233,10 @@
     applyTheme(savedTheme);
 
   </script>
+  <footer class="site-footer">
+    <p>Built by Areeba Sajid &middot; Node.js, Express &amp; PostgreSQL</p>
+    <a href="https://github.com/areeba022/alexandria" target="_blank">View on GitHub</a>
+  </footer>
 </body>
 
 </html>

@@ -34,7 +34,15 @@ app.get('/suggest', async (req, res) => {
 
     res.json(result.rows.map(row => row.title));
 });
-
+app.get('/stats', async (req, res) => {
+    try {
+        const result = await client.query('SELECT COUNT(*) FROM books');
+        res.json({ totalBooks: parseInt(result.rows[0].count) });
+    } catch (err) {
+        console.error('STATS ERROR:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
 app.get('/search', async (req, res) => {
     const query = req.query.q || '';
     const searchTerm = `%${query}%`;
