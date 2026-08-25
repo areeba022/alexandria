@@ -191,3 +191,55 @@ mark {
 .clear-history:hover {
   opacity: 0.7;
 }
+.book-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  gap: 16px;
+}
+
+.book-cover {
+  width: 70px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.book-cover-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-color);
+  font-size: 1.8rem;
+  border: 1px solid var(--border-color);
+}
+
+.book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  margin: 4px 0 8px;
+}
+
+.book-category {
+  background-color: var(--bg-color);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+}
+
+.book-description {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  opacity: 0.85;
+}

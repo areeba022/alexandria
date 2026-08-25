@@ -40,7 +40,7 @@ app.get('/search', async (req, res) => {
     const searchTerm = `%${query}%`;
 
     const result = await client.query(
-        `SELECT title, authors, description,
+        `SELECT title, authors, description, published_date, categories, thumbnail,
        (CASE WHEN title ILIKE $1 THEN 5 ELSE 0 END) +
        (CASE WHEN authors ILIKE $1 THEN 3 ELSE 0 END) +
        (CASE WHEN description ILIKE $1 THEN 1 ELSE 0 END) AS score

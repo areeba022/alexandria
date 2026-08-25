@@ -162,12 +162,30 @@
 
       for (let i = 0; i < books.length; i++) {
         const book = books[i];
-        const highlightedTitle = highlightMatch(book.title, query);
-        const highlightedAuthors = highlightMatch(book.authors, query);
+        const highlightedTitle = highlightMatch(book.title || 'Untitled', query);
+        const highlightedAuthors = highlightMatch(book.authors || 'Unknown author', query);
+        const highlightedDescription = highlightMatch(
+          book.description ? book.description.slice(0, 200) + (book.description.length > 200 ? '…' : '') : '',
+          query
+        );
+        const year = book.published_date ? book.published_date.slice(0, 4) : '';
+        const category = book.categories || '';
+        const coverImg = book.thumbnail
+          ? `<img src="${book.thumbnail}" alt="${book.title}" class="book-cover">`
+          : `<div class="book-cover book-cover-placeholder">📖</div>`;
+
         resultsDiv.innerHTML += `
           <div class="book-card">
-            <div class="book-title">${highlightedTitle}</div>
-            <div class="book-author">by ${highlightedAuthors}</div>
+            ${coverImg}
+            <div class="book-info">
+              <div class="book-title">${highlightedTitle}</div>
+              <div class="book-author">by ${highlightedAuthors}</div>
+              <div class="book-meta">
+                ${year ? `<span>${year}</span>` : ''}
+                ${category ? `<span class="book-category">${category}</span>` : ''}
+              </div>
+              ${highlightedDescription ? `<div class="book-description">${highlightedDescription}</div>` : ''}
+            </div>
           </div>
         `;
       }
