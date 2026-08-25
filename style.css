@@ -7,6 +7,15 @@
   --highlight-bg: #f0c96b;
   --highlight-text: #2b2118;
 }
+body.dark-mode {
+  --bg-color: #1a1613;
+  --text-color: #ece4d8;
+  --accent-color: #d9a15b;
+  --card-bg: #241f1a;
+  --border-color: #3a332b;
+  --highlight-bg: #b5842e;
+  --highlight-text: #1a1613;
+}
 
 * {
   box-sizing: border-box;
@@ -20,8 +29,30 @@ body {
   margin: 0 auto;
   padding: 40px 20px;
   line-height: 1.6;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--card-bg);
+}
 h1 {
   font-size: 2.5rem;
   text-align: center;
